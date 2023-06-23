@@ -1,0 +1,69 @@
+"use strict";
+
+const addBtn = document.getElementById("add");
+/////////////////snimanje na local storage
+const notes = JSON.parse(localStorage.getItem("notes"));
+
+if (notes) {
+  notes.forEach((note) => addNewNote(note));
+}
+////////////////
+addBtn.addEventListener("click", () => {
+  addNewNote();
+});
+
+function addNewNote(text = "") {
+  const note = document.createElement("div");
+  note.classList.add("note");
+
+  note.innerHTML = `<div class="tools">
+    <button class="edit">
+      <ion-icon name="create-outline"></ion-icon>
+    </button>
+    <button class="delete">
+      <ion-icon name="trash-outline"></ion-icon>
+    </button>
+  </div>
+  <div class="main ${text ? "" : "hidden"}"></div>
+  <textarea class="${text ? "hidden" : ""}"></textarea>`;
+
+  const editBtn = note.querySelector(".edit");
+  const deleteBtn = note.querySelector(".delete");
+  const main = note.querySelector(".main");
+  const textArea = note.querySelector("textarea");
+
+  textArea.value = text;
+  main.innerHTML = marked(text);
+
+  deleteBtn.addEventListener("click", () => {
+    note.remove();
+/////////////////snimanje na local storage
+    updateLS();
+  });
+
+  editBtn.addEventListener("click", () => {
+    main.classList.toggle("hidden");
+    textArea.classList.toggle("hidden");
+  });
+
+  textArea.addEventListener("input", (e) => {
+    const { value } = e.target;
+
+    main.innerHTML = marked(value);
+/////////////////snimanje na local storage
+    updateLS();
+  });
+
+  document.body.appendChild(note);
+}
+
+/////////////////snimanje na local storage
+function updateLS() {
+    const notesText = document.querySelectorAll("textarea");
+  
+    const notes = [];
+  
+    notesText.forEach((note) => notes.push(note.value));
+  
+    localStorage.setItem("notes", JSON.stringify(notes));
+  }
